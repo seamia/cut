@@ -50,6 +50,7 @@ var (
 		"bottom":  {funcBottom, "N\t- get bottom N lines"},
 		"exclude": {funcExclude, "file\t- exclude all lines containing any of the phrases found in file"},
 		"include": {funcInclude, "file\t- include only lines containing any of the phrases found in file"},
+		"replace": {funcReplace, "from to [/i]\t- find and replace"},
 		"script":  {nil, ""}, // funcScript,
 		"help":    {nil, ""},
 	}
