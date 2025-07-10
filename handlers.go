@@ -344,3 +344,100 @@ func funcScript(all string, media printer.Printer, args []string) error {
 	*/
 	return nil
 }
+
+type Differentiator func(s string) string
+
+func getDifferentiator(separator string, before, first bool) Differentiator {
+	return func(s string) string {
+		parts := strings.Split(s, separator)
+		if first {
+			if before {
+				// before.first
+				return parts[0]
+			} else {
+				// after.first
+				return strings.Join(parts[1:], separator)
+			}
+		} else {
+			// last
+			if before {
+				// before.last
+				if len(parts) < 2 {
+					return ""
+				} else {
+					return strings.Join(parts[:len(parts)-1], separator)
+				}
+			} else {
+				// after.last
+				return parts[len(parts)-1]
+			}
+		}
+	}
+}
+
+/*
+func getPart(line, separator string, before, first bool) string {
+	parts := strings.Split(line, separator)
+	if first {
+		if before {
+			// before.first
+			return parts[0]
+		} else {
+			// after.first
+			return strings.Join(parts[1:], separator)
+		}
+	} else {
+		// last
+		if before {
+			// before.last
+			if len(parts) < 2 {
+				return ""
+			} else {
+				return strings.Join(parts[:len(parts)-1], separator)
+			}
+		} else {
+			// after.last
+			return parts[len(parts)-1]
+		}
+	}
+}
+*/
+
+func funcBeforeOrAfterFirstOrLast(all string, media printer.Printer, args []string, before, first bool) error {
+
+	separator := ""
+	if len(args) == 1 {
+		separator = args[0]
+	} else {
+		return errors.New("missing required argument")
+	}
+
+	if len(separator) == 0 {
+		return errors.New("empty separator")
+	}
+
+	differentiator := getDifferentiator(separator, before, first)
+
+	for _, line := range strings.Split(all, cr) {
+		if modified := differentiator(line); len(modified) > 0 {
+			media("%s\n", modified)
+		}
+	}
+	return nil
+}
+
+func funcAfterFirst(all string, media printer.Printer, args []string) error {
+	return funcBeforeOrAfterFirstOrLast(all, media, args, false, true)
+}
+
+func funcAfterLast(all string, media printer.Printer, args []string) error {
+	return funcBeforeOrAfterFirstOrLast(all, media, args, false, false)
+}
+
+func funcBeforeFirst(all string, media printer.Printer, args []string) error {
+	return funcBeforeOrAfterFirstOrLast(all, media, args, true, true)
+}
+
+func funcBeforeLast(all string, media printer.Printer, args []string) error {
+	return funcBeforeOrAfterFirstOrLast(all, media, args, true, false)
+}
