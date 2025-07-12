@@ -247,6 +247,7 @@ func constructFindFunc(pattern string) Find {
 	return find
 }
 
+// discard lines that match specified pattern
 func funcDiscard(all string, media printer.Printer, args []string) error {
 	pattern := ""
 	if len(args) > 0 {
@@ -264,6 +265,7 @@ func funcDiscard(all string, media printer.Printer, args []string) error {
 	return nil
 }
 
+// use only lines that match specified pattern
 func funcRetain(all string, media printer.Printer, args []string) error {
 	pattern := ""
 	if len(args) > 0 {
@@ -275,6 +277,21 @@ func funcRetain(all string, media printer.Printer, args []string) error {
 	for _, line := range lines {
 		line = strings.TrimSuffix(line, "\r")
 		if find(line) {
+			media("%s\n", line)
+		}
+	}
+	return nil
+}
+
+// "cut exact" - exclude all the line that are equal to specified text
+func funcExact(all string, media printer.Printer, args []string) error {
+	if len(args) != 1 {
+		return errors.New("missing required one argument")
+	}
+	exact := args[0]
+	for _, line := range strings.Split(all, cr) {
+		trim := strings.TrimSuffix(line, " \t\r")
+		if trim != exact {
 			media("%s\n", line)
 		}
 	}
@@ -440,4 +457,24 @@ func funcBeforeFirst(all string, media printer.Printer, args []string) error {
 
 func funcBeforeLast(all string, media printer.Printer, args []string) error {
 	return funcBeforeOrAfterFirstOrLast(all, media, args, true, false)
+}
+
+func funcHeader(all string, media printer.Printer, args []string) error {
+	if len(args) < 1 {
+		return errors.New("missing required argument")
+	}
+
+	header := strings.Join(args, cr)
+	media("%s%s%s", header, cr, all)
+	return nil
+}
+
+func funcFooter(all string, media printer.Printer, args []string) error {
+	if len(args) < 1 {
+		return errors.New("missing required argument")
+	}
+
+	footer := strings.Join(args, cr)
+	media("%s%s%s", all, cr, footer)
+	return nil
 }
