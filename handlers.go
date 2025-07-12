@@ -289,8 +289,9 @@ func funcExact(all string, media printer.Printer, args []string) error {
 		return errors.New("missing required one argument")
 	}
 	exact := args[0]
+	
 	for _, line := range strings.Split(all, cr) {
-		trim := strings.TrimSuffix(line, " \t\r")
+		trim := strings.Trim(line, " \t\r")
 		if trim != exact {
 			media("%s\n", line)
 		}
