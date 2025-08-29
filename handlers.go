@@ -289,7 +289,7 @@ func funcExact(all string, media printer.Printer, args []string) error {
 		return errors.New("missing required one argument")
 	}
 	exact := args[0]
-	
+
 	for _, line := range strings.Split(all, cr) {
 		trim := strings.Trim(line, " \t\r")
 		if trim != exact {
@@ -320,6 +320,7 @@ func funcAppend(all string, media printer.Printer, args []string) error {
 	suffix := args[0]
 	lines := strings.Split(all, cr)
 	for _, line := range lines {
+		line = strings.TrimSuffix(line, "\r")
 		media("%s%s\n", line, suffix)
 	}
 	return nil
